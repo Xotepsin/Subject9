@@ -24,24 +24,24 @@ TArray<int32> UBaseBallBlueprintFunctionLibrary::GenerateSecretNumber()
         SecretNumbers.Add(NumberPool[i]);
     }
 
-    return SecretNumbers;
+	return SecretNumbers;
 }
 
 void UBaseBallBlueprintFunctionLibrary::CheckGuess(const TArray<int32>& SecretNumbers, const TArray<int32>& GuessNumbers, int32& OutStrikes, int32& OutBalls)
 {
-    OutStrikes = 0;
-    OutBalls = 0;
-    for (int32 i = 0; i < 3; i++)
-    {
-        if (SecretNumbers[i] == GuessNumbers[i])
-        {
-            OutStrikes++;
-        }
-        else if (SecretNumbers.Contains(GuessNumbers[i]))
-        {
-            OutBalls++;
-        }
-    }
+	OutStrikes = 0;
+	OutBalls = 0;
+	for (int32 i = 0; i < 3; i++)
+	{
+		if (SecretNumbers[i] == GuessNumbers[i])
+		{
+			OutStrikes++;
+		}
+		else if (SecretNumbers.Contains(GuessNumbers[i]))
+		{
+			OutBalls++;
+		}
+	}
 }
 
 bool UBaseBallBlueprintFunctionLibrary::ValidateGuess(const TArray<int32>& GuessNumbers)

@@ -10,11 +10,11 @@ class SAMPLECHAT_API UBaseBallBlueprintFunctionLibrary : public UBlueprintFuncti
 	GENERATED_BODY()
 	
 public:
-    /**
-    * 1부터 9까지의 숫자 중에서 중복 없이 3자리 숫자를 생성합니다.
-    *
-    * @return 생성된 3자리 숫자 배열
-    */
+ /**
+ * 1부터 9까지의 숫자 중에서 중복 없이 3자리 숫자를 생성합니다.
+ *
+ * @return 생성된 3자리 숫자 배열
+ */
     UFUNCTION(BlueprintCallable, Category = "NumberBaseball")
     static TArray<int32> GenerateSecretNumber();
 
