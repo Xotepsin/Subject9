@@ -25,7 +25,7 @@ public:
  * Message : 채팅 메시지 (예: "/123")
  */
     UFUNCTION(BlueprintCallable, Category = "NumberBaseball")
-    void ProcessChatMessage(APlayerController* Sender, const FString& Message);
+    void ProcessChatMessage(APlayerController* Sender, const FString& Message, const FString& UserID);
 	
 	
 protected:
@@ -33,7 +33,7 @@ protected:
     void ResetGame();
 
     // 플레이어의 역할(Host/Guest) 결정 함수
-    EPlayerRole GetPlayerRole(APlayerController* Sender);
+    EPlayerRole GetPlayerRole(APlayerController* Sender, const FString& UserID);
 
     // 게임 상태 변수
     TArray<int32> SecretNumber;

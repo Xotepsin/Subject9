@@ -1,16 +1,20 @@
 ﻿#include "BaseBallGameModeBase.h"
 #include "BaseBallBlueprintFunctionLibrary.h"
 #include "GameFramework/PlayerController.h"
+#include "BaseBallGameState.h"
 #include "Engine/Engine.h"
 
 ABaseBallGameModeBase::ABaseBallGameModeBase()
 {
-	// 게임 시작 시 초기화
-	ResetGame();
+    SecretNumber = UBaseBallBlueprintFunctionLibrary::GenerateSecretNumber();
+    AttemptsHost = 0;
+    AttemptsGuest = 0;
+    HostPlayer = nullptr;
+    GuestPlayer = nullptr;
 }
 
 
-void ABaseBallGameModeBase::ProcessChatMessage(APlayerController* Sender, const FString& Message)
+void ABaseBallGameModeBase::ProcessChatMessage(APlayerController* Sender, const FString& Message, const FString& UserID)
 {
     // 채팅 메시지가 "/"로 시작하지 않으면 무시
     if (!Message.StartsWith("/"))
@@ -19,7 +23,7 @@ void ABaseBallGameModeBase::ProcessChatMessage(APlayerController* Sender, const 
     }
 
     // 플레이어 역할 결정
-    EPlayerRole PlayerRole = GetPlayerRole(Sender);
+    EPlayerRole PlayerRole = GetPlayerRole(Sender, UserID);
     if (PlayerRole == EPlayerRole::Unknown)
     {
         if (GEngine)
@@ -92,6 +96,23 @@ void ABaseBallGameModeBase::ProcessChatMessage(APlayerController* Sender, const 
                 FString WinMsg = FString::Printf(TEXT("플레이어 %s 승리!! 다시 게임이 시작되었습니다."),
                     (PlayerRole == EPlayerRole::Host ? TEXT("Host") : TEXT("Guest")));
                 GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, WinMsg);
+
+                if (PlayerRole == EPlayerRole::Host)
+                {
+                    ABaseBallGameState* MyGameState = GetGameState<ABaseBallGameState>();
+                    if (MyGameState)
+                    {
+                        MyGameState->AddHostScore();
+                    }
+                }
+                else
+                {
+                    ABaseBallGameState* MyGameState = GetGameState<ABaseBallGameState>();
+                    if (MyGameState)
+                    {
+                        MyGameState->AddGuestScore();
+                    }
+                }
             }
             ResetGame();
             return;
@@ -142,10 +163,10 @@ void ABaseBallGameModeBase::ResetGame()
     }
 }
 
-EPlayerRole ABaseBallGameModeBase::GetPlayerRole(APlayerController* Sender)
+EPlayerRole ABaseBallGameModeBase::GetPlayerRole(APlayerController* Sender, const FString& UserID)
 {
-    // 간단 예시: 첫 번째 플레이어는 Host, 두 번째 플레이어는 Guest
-    if (!HostPlayer.IsValid())
+    UE_LOG(LogTemp, Warning, TEXT("GetPlayerRole called. UserID='%s'"), *UserID);
+    if (UserID == TEXT("Host"))
     {
         HostPlayer = Sender;
         return EPlayerRole::Host;
@@ -154,7 +175,7 @@ EPlayerRole ABaseBallGameModeBase::GetPlayerRole(APlayerController* Sender)
     {
         return EPlayerRole::Host;
     }
-    if (!GuestPlayer.IsValid() && Sender != HostPlayer.Get())
+    if (UserID == TEXT("Guest"))
     {
         GuestPlayer = Sender;
         return EPlayerRole::Guest;
