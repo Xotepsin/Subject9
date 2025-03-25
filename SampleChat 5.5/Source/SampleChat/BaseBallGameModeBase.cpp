@@ -9,6 +9,8 @@ ABaseBallGameModeBase::ABaseBallGameModeBase()
     SecretNumber = UBaseBallBlueprintFunctionLibrary::GenerateSecretNumber();
     AttemptsHost = 0;
     AttemptsGuest = 0;
+    bHostOut = false;
+    bGuestOut = false;
     HostPlayer = nullptr;
     GuestPlayer = nullptr;
 }
@@ -22,6 +24,17 @@ void ABaseBallGameModeBase::ProcessChatMessage(APlayerController* Sender, const 
         return;
     }
 
+    // 각 플레이어가 3번의 시도 내에 승리하지 못한 경우 처리
+    if (AttemptsHost >= MaxAttempts && AttemptsGuest < MaxAttempts)
+    {
+        bHostOut = true;
+    }
+    if (AttemptsGuest >= MaxAttempts && AttemptsHost < MaxAttempts)
+    {
+        bGuestOut = true;
+    }
+
+
     // 플레이어 역할 결정
     EPlayerRole PlayerRole = GetPlayerRole(Sender, UserID);
     if (PlayerRole == EPlayerRole::Unknown)
@@ -29,6 +42,26 @@ void ABaseBallGameModeBase::ProcessChatMessage(APlayerController* Sender, const 
         if (GEngine)
         {
             GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("알 수 없는 플레이어입니다."));
+        }
+        return;
+    }
+
+
+
+    // 만약 Host가 이미 3회 실패했다면, bHostOut를 true로 설정했을 것으로 가정
+    if (PlayerRole == EPlayerRole::Host && bHostOut)
+    {
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Host는 더 이상 입력할 수 없습니다."));
+        }
+        return;
+    }
+    if (PlayerRole == EPlayerRole::Guest && bGuestOut)
+    {
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Guest는 더 이상 입력할 수 없습니다."));
         }
         return;
     }
@@ -52,6 +85,34 @@ void ABaseBallGameModeBase::ProcessChatMessage(APlayerController* Sender, const 
             FString ErrorMsg = FString::Printf(TEXT("플레이어 %s: 잘못된 입력입니다. (OUT 처리)"),
                 (PlayerRole == EPlayerRole::Host ? TEXT("Host") : TEXT("Guest")));
             GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, ErrorMsg);
+            ABaseBallGameState* MyGameState = GetGameState<ABaseBallGameState>();
+            if (PlayerRole == EPlayerRole::Host)
+            {
+                if (GEngine)
+                {
+
+                    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Host 아웃!!. Guest 승리!! 게임이 리셋됩니다."));
+                }
+
+                if (MyGameState)
+                {
+                    MyGameState->AddGuestScore();
+                }
+            }
+            else if (PlayerRole == EPlayerRole::Guest)
+            {
+                if (GEngine)
+                {
+                    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Guest 아웃!!. Host 승리!! 게임이 리셋됩니다."));
+                }
+                if (MyGameState)
+                {
+                    MyGameState->AddHostScore();
+                }
+            }
+            ResetGame();
+            return;
+
         }
     }
     else
@@ -65,10 +126,49 @@ void ABaseBallGameModeBase::ProcessChatMessage(APlayerController* Sender, const 
         if (Strikes == 0 && Balls == 0)
         {
             ResultMsg = "OUT";
+            ABaseBallGameState* MyGameState = GetGameState<ABaseBallGameState>();
+            if (MyGameState)
+            {
+                MyGameState->SetBall(Balls);
+                MyGameState->SetStrike(Strikes);
+            }
+
+            if (PlayerRole == EPlayerRole::Host)
+            {
+                if (GEngine)
+                {
+
+                    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Host 아웃!!. Guest 승리!! 게임이 리셋됩니다."));
+                }
+
+                if (MyGameState)
+                {
+                    MyGameState->AddGuestScore();
+                }
+            }
+            else if (PlayerRole == EPlayerRole::Guest)
+            {
+                if (GEngine)
+                {
+                    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Guest 아웃!!. Host 승리!! 게임이 리셋됩니다."));
+                }
+                if (MyGameState)
+                {
+                    MyGameState->AddHostScore();
+                }
+            }
+            ResetGame();
+            return;
         }
         else
         {
             ResultMsg = FString::Printf(TEXT("%dS%dB"), Strikes, Balls);
+            ABaseBallGameState* MyGameState = GetGameState<ABaseBallGameState>();
+            if (MyGameState)
+            {
+                MyGameState->SetBall(Balls);
+				MyGameState->SetStrike(Strikes);
+            }
         }
 
         if (GEngine)
@@ -82,10 +182,22 @@ void ABaseBallGameModeBase::ProcessChatMessage(APlayerController* Sender, const 
         if (PlayerRole == EPlayerRole::Host)
         {
             AttemptsHost++;
+            ABaseBallGameState* MyGameState = GetGameState<ABaseBallGameState>();
+            if (MyGameState)
+            {
+				MyGameState->SetHostAttempts(AttemptsHost);
+                UE_LOG(LogTemp, Warning, TEXT("Host  Attempts : '%d', Guest  Attempts : '%d'"), AttemptsHost, AttemptsGuest);
+            }
         }
         else if (PlayerRole == EPlayerRole::Guest)
         {
             AttemptsGuest++;
+            ABaseBallGameState* MyGameState = GetGameState<ABaseBallGameState>();
+            if (MyGameState)
+            {
+                MyGameState->SetGuestAttempts(AttemptsGuest);
+                UE_LOG(LogTemp, Warning, TEXT("Host Attempts: '%d', Guest Attempts: '%d'"), AttemptsHost, AttemptsGuest);
+            }
         }
 
         // 3S(3스트라이크)인 경우 즉시 승리 처리
@@ -118,27 +230,8 @@ void ABaseBallGameModeBase::ProcessChatMessage(APlayerController* Sender, const 
             return;
         }
     }
-
-    // 각 플레이어가 3번의 시도 내에 승리하지 못한 경우 처리
-    if (AttemptsHost >= MaxAttempts && AttemptsGuest < MaxAttempts)
-    {
-        if (GEngine)
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Host가 3번 시도 실패. Guest 승리!! 게임이 리셋됩니다."));
-        }
-        ResetGame();
-        return;
-    }
-    else if (AttemptsGuest >= MaxAttempts && AttemptsHost < MaxAttempts)
-    {
-        if (GEngine)
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Guest가 3번 시도 실패. Host 승리!! 게임이 리셋됩니다."));
-        }
-        ResetGame();
-        return;
-    }
-    else if (AttemptsHost >= MaxAttempts && AttemptsGuest >= MaxAttempts)
+	// 시도 횟수가 3회 이상인 경우 무승부 처리
+    if (AttemptsHost >= MaxAttempts && AttemptsGuest >= MaxAttempts)
     {
         if (GEngine)
         {
@@ -152,8 +245,19 @@ void ABaseBallGameModeBase::ProcessChatMessage(APlayerController* Sender, const 
 void ABaseBallGameModeBase::ResetGame()
 {
     SecretNumber = UBaseBallBlueprintFunctionLibrary::GenerateSecretNumber();
+    ABaseBallGameState* MyGameState = GetGameState<ABaseBallGameState>();
+	if (MyGameState)
+	{
+		int32 hostScore = MyGameState->GetHostScore();
+		int32 guestScore = MyGameState->GetGuestScore();
+		MyGameState->SetHostAttempts(0);
+		MyGameState->SetGuestAttempts(0);   
+        UE_LOG(LogTemp, Warning, TEXT("Host Score : '%d', Guest Score : '%d'"), hostScore, guestScore);
+	}
     AttemptsHost = 0;
     AttemptsGuest = 0;
+    bHostOut = false;
+    bGuestOut = false;
     HostPlayer = nullptr;
     GuestPlayer = nullptr;
 

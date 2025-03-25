@@ -5,15 +5,12 @@ ABaseBallGameState::ABaseBallGameState()
 {
 	CurrentStrikes = 0;
 	CurrentBalls = 0;
-	CurrentOuts = 0;
 	CurrentHostScore = 0;
 	CurrentGuestScore = 0;
+	CurrentGuestAttempts = 0;
+	CurrentHostAttempts = 0;
 }
 
-int32 ABaseBallGameState::GetOuts() const
-{
-	return CurrentOuts;
-}
 
 int32 ABaseBallGameState::GetStrikes() const
 {
@@ -45,10 +42,16 @@ void ABaseBallGameState::SetBall(int32 Balls)
 	CurrentBalls = Balls;
 }
 
-void ABaseBallGameState::SetOut(int32 Outs)
+void ABaseBallGameState::SetHostAttempts(int32 Score)
 {
-	CurrentOuts = Outs;
+	CurrentHostAttempts = Score;
 }
+
+void ABaseBallGameState::SetGuestAttempts(int32 Score)
+{
+	CurrentGuestAttempts = Score;
+}
+
 
 void ABaseBallGameState::AddHostScore()
 {
@@ -66,7 +69,8 @@ void ABaseBallGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	DOREPLIFETIME(ABaseBallGameState, CurrentStrikes);
 	DOREPLIFETIME(ABaseBallGameState, CurrentBalls);
-	DOREPLIFETIME(ABaseBallGameState, CurrentOuts);
 	DOREPLIFETIME(ABaseBallGameState, CurrentHostScore);
 	DOREPLIFETIME(ABaseBallGameState, CurrentGuestScore);
+	DOREPLIFETIME(ABaseBallGameState, CurrentGuestAttempts);
+	DOREPLIFETIME(ABaseBallGameState, CurrentHostAttempts);
 }

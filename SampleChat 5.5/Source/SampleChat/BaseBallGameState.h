@@ -17,25 +17,23 @@ public:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Baseball")
 	int32 CurrentBalls;
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Baseball")
-	int32 CurrentOuts;
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Baseball")
 	int32 CurrentHostScore;
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Baseball")
 	int32 CurrentGuestScore;
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Baseball")
+	int32 CurrentGuestAttempts;
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Baseball")
+	int32 CurrentHostAttempts;
 
-	UFUNCTION(BlueprintPure, Category = "Baseball")
-	int32 GetOuts() const;
-	UFUNCTION(BlueprintPure, Category = "Baseball")
 	int32 GetStrikes() const;
-	UFUNCTION(BlueprintPure, Category = "Baseball")
 	int32 GetBalls() const;
-	UFUNCTION(BlueprintPure, Category = "Baseball")
 	int32 GetHostScore() const;
-	UFUNCTION(BlueprintPure, Category = "Baseball")
 	int32 GetGuestScore() const;
 	void SetStrike(int32 Strike);
 	void SetBall(int32 Balls);
-	void SetOut(int32 Outs);
+	void SetHostAttempts(int32 Score);
+	void SetGuestAttempts(int32 Score);
 	void AddHostScore();
 	void AddGuestScore();
+
 };

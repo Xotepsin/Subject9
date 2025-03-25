@@ -40,6 +40,8 @@ protected:
     int32 AttemptsHost;
     int32 AttemptsGuest;
     const int32 MaxAttempts = 3;
+    bool bHostOut;
+	bool bGuestOut;
 
     // 플레이어 컨트롤러 (첫 번째 접속: Host, 두 번째: Guest)
     TWeakObjectPtr<APlayerController> HostPlayer;
