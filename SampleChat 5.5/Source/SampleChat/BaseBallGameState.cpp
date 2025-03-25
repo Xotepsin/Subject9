@@ -73,4 +73,6 @@ void ABaseBallGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ABaseBallGameState, CurrentGuestScore);
 	DOREPLIFETIME(ABaseBallGameState, CurrentGuestAttempts);
 	DOREPLIFETIME(ABaseBallGameState, CurrentHostAttempts);
+	DOREPLIFETIME(ABaseBallGameState, TurnTimerRemaining);
+	DOREPLIFETIME(ABaseBallGameState, RecentNumber);
 }

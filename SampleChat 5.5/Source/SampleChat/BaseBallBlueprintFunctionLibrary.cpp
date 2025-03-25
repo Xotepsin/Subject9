@@ -27,21 +27,35 @@ TArray<int32> UBaseBallBlueprintFunctionLibrary::GenerateSecretNumber()
 	return SecretNumbers;
 }
 
-void UBaseBallBlueprintFunctionLibrary::CheckGuess(const TArray<int32>& SecretNumbers, const TArray<int32>& GuessNumbers, int32& OutStrikes, int32& OutBalls)
+bool UBaseBallBlueprintFunctionLibrary::CheckGuess(const TArray<int32>& SecretNumbers, const TArray<int32>& GuessNumbers, int32& OutStrikes, int32& OutBalls)
 {
-	OutStrikes = 0;
-	OutBalls = 0;
-	for (int32 i = 0; i < 3; i++)
-	{
-		if (SecretNumbers[i] == GuessNumbers[i])
-		{
-			OutStrikes++;
-		}
-		else if (SecretNumbers.Contains(GuessNumbers[i]))
-		{
-			OutBalls++;
-		}
-	}
+    // 기본 출력값 초기화
+    OutStrikes = 0;
+    OutBalls = 0;
+
+    // 배열의 길이가 정확히 3인지 검사 (게임 규칙상 3자리)
+    if (SecretNumbers.Num() != 3 || GuessNumbers.Num() != 3)
+    {
+        UE_LOG(LogTemp, Error, TEXT("CheckGuess: 배열 길이가 올바르지 않습니다. SecretNumber.Num() = %d, GuessNumbers.Num() = %d"),
+            SecretNumbers.Num(), GuessNumbers.Num());
+        return false;
+    }
+
+    // 안전하게 3자리 숫자에 대해 스트라이크/볼 계산
+    for (int32 i = 0; i < 3; i++)
+    {
+        // 배열 접근 전에 인덱스가 유효한지 (이미 위 조건에서 보장됨)
+        if (SecretNumbers[i] == GuessNumbers[i])
+        {
+            OutStrikes++;
+        }
+        else if (SecretNumbers.Contains(GuessNumbers[i]))
+        {
+            OutBalls++;
+        }
+    }
+
+    return true;
 }
 
 bool UBaseBallBlueprintFunctionLibrary::ValidateGuess(const TArray<int32>& GuessNumbers)

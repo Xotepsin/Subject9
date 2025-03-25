@@ -24,6 +24,10 @@ public:
 	int32 CurrentGuestAttempts;
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Baseball")
 	int32 CurrentHostAttempts;
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Turn")
+	float TurnTimerRemaining;
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "NumberBaseball")
+	FString RecentNumber;
 
 	int32 GetStrikes() const;
 	int32 GetBalls() const;

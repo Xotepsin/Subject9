@@ -12,6 +12,14 @@ enum class EPlayerRole : uint8
     Unknown
 };
 
+// 게임 턴
+UENUM(BlueprintType)
+enum class EGameTurn : uint8
+{
+    HostTurn UMETA(DisplayName = "Host Turn"),
+    GuestTurn UMETA(DisplayName = "Guest Turn")
+};
+
 UCLASS()
 class SAMPLECHAT_API ABaseBallGameModeBase : public AGameModeBase
 {
@@ -26,6 +34,34 @@ public:
  */
     UFUNCTION(BlueprintCallable, Category = "NumberBaseball")
     void ProcessChatMessage(APlayerController* Sender, const FString& Message, const FString& UserID);
+
+    // 턴 제어 관련
+    UPROPERTY(BlueprintReadOnly, Category = "Turn")
+    EGameTurn CurrentTurn;
+
+    // 턴 제한 시간 (초 단위)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Turn")
+    float TurnTimeLimit;
+
+
+    // 타이머 핸들
+    FTimerHandle TurnTimerHandle;
+
+    // 턴 전환 함수
+    UFUNCTION(BlueprintCallable, Category = "Turn")
+    void NextTurn();
+
+    // 제한 시간 만료 시 호출되는 함수
+    UFUNCTION()
+    void OnTurnTimeExpired();
+
+    UFUNCTION()
+    void UpdateTurnTimer();
+
+	void BeginPlay() override;
+
+    UPROPERTY()
+    bool bTurnChanged;
 	
 	
 protected:

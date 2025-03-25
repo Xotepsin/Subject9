@@ -27,7 +27,7 @@ public:
      * @param OutBalls (출력) 숫자만 일치하는 개수
      */
     UFUNCTION(BlueprintCallable, Category = "NumberBaseball")
-    static void CheckGuess(const TArray<int32>& SecretNumbers, const TArray<int32>& GuessNumbers, int32& OutStrikes, int32& OutBalls);
+    static bool CheckGuess(const TArray<int32>& SecretNumbers, const TArray<int32>& GuessNumbers, int32& OutStrikes, int32& OutBalls);
 
     /**
      * 플레이어가 입력한 숫자 배열이 유효한지 검증합니다.
