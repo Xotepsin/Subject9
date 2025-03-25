@@ -57,7 +57,6 @@ public:
 
     UFUNCTION()
     void UpdateTurnTimer();
-
 	void BeginPlay() override;
 
     UPROPERTY()

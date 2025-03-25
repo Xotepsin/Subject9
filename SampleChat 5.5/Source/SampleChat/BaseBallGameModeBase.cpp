@@ -349,7 +349,7 @@ void ABaseBallGameModeBase::BeginPlay()
     }
     // 턴 타이머 시작
     GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &ABaseBallGameModeBase::UpdateTurnTimer, 1.0f, true);
-}
+}   
 
 void ABaseBallGameModeBase::ResetGame()
 {
